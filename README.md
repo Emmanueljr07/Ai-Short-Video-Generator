@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is a Ai-Short-Video-Generator project created with Nextjs Framework.
 
 ## Getting Started
 
@@ -18,16 +18,36 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Various Resources Used
 
-## Learn More
+These are the some of the resources used for Databases,Authentication, AI, Icons and More
+A learn more about Next.js, take a look at the following resources:
 
-To learn more about Next.js, take a look at the following resources:
+# Database
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Neon
+- Supabase
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Authentication
+
+- Clerk
+
+# AI
+
+- Gemini
+<!-- - ElevenLabs -->
+- AssemblyAI
+- Replicate
+
+# Icons
+
+- FlatIcons
+
+# ORM
+
+- Drizzle
+
+You can check out [the Website](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
 ## Deploy on Vercel
 

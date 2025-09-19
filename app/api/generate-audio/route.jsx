@@ -8,49 +8,51 @@ import { Buffer } from "buffer";
 export async function POST(req) {
   const { text, id } = await req.json();
 
-  const filePath = `${id}.mp3 `;
+  const filePath = `ai-short-video-files/${id}.mp3 `;
 
   try {
-    const elevenlabs = new ElevenLabsClient();
-    const audio = await elevenlabs.textToSpeech.convert(
-      "JBFqnCBsd6RMkjVDRZzb",
-      {
-        text: text,
-        // modelId: "eleven_multilingual_v2",
-        modelId: "eleven_flash_v2_5",
-        outputFormat: "mp3_44100_128",
-      }
-    );
+    // const elevenlabs = new ElevenLabsClient();
+    // const audio = await elevenlabs.textToSpeech.convert(
+    //   "JBFqnCBsd6RMkjVDRZzb",
+    //   {
+    //     text: text,
+    //     // modelId: "eleven_multilingual_v2",
+    //     modelId: "eleven_flash_v2_5",
+    //     outputFormat: "mp3_44100_128",
+    //   }
+    // );
 
-    // STORING IN SUPABASE
-    // Read the stream and collect all chunks into a single Buffer
-    const chunks = [];
-    for await (const chunk of audio) {
-      chunks.push(chunk);
-    }
-    const audioBuffer = Buffer.concat(chunks);
+    // // STORING IN SUPABASE
+    // // Read the stream and collect all chunks into a single Buffer
+    // const chunks = [];
+    // for await (const chunk of audio) {
+    //   chunks.push(chunk);
+    // }
+    // const audioBuffer = Buffer.concat(chunks);
 
-    console.log("Audio stream successfully read and buffered."); // creating a buffer
+    // console.log("Audio stream successfully read and buffered."); // creating a buffer
 
-    // Upload the audio buffer to Supabase Storage
-    const { data, error } = await supabase.storage
-      .from("ai-short-video-generator")
-      .upload(filePath, audioBuffer, {
-        cacheControl: "3600",
-        upsert: false,
-        contentType: "audio/mp3",
-      });
-    if (error) {
-      console.error("Error uploading audio to supabase", error);
-      throw error;
-    }
+    // // Upload the audio buffer to Supabase Storage
+    // const { data, error } = await supabase.storage
+    //   .from("ai-short-video-generator")
+    //   .upload(filePath, audioBuffer, {
+    //     cacheControl: "3600",
+    //     upsert: false,
+    //     contentType: "audio/mp3",
+    //   });
+    // if (error) {
+    //   console.error("Error uploading audio to supabase", error);
+    //   throw error;
+    // }
 
-    console.log("File uploaded successfully:", data);
+    // console.log("File uploaded successfully:", data);
 
     // Get the public URL for the uploaded file
-    const { urlData, urlError } = supabase.storage
+    const { data: urlData, error: urlError } = supabase.storage
       .from("ai-short-video-generator")
-      .getPublicUrl("34f720cf-9a35-4dd8-8793-471366fca7c3.mp3");
+      .getPublicUrl(
+        "ai-short-video-files/d2e8a3d1-297b-4493-bc56-416d0e7d45a1.mp3"
+      );
     if (urlError) {
       console.error("Error getting public URL:", urlError);
     }
