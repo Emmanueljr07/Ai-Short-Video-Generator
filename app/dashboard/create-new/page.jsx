@@ -5,10 +5,17 @@ import SelectStyle from "./_components/SelectStyle";
 import SelectDuration from "./_components/SelectDuration";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
-import Script from "next/script";
 import { v4 as uuidv4 } from "uuid";
 import { CustomLoading } from "./_components/CustomLoading";
 import { VideoDataContext } from "@/app/_context/VideoDataContext";
+import { useUser } from "@clerk/nextjs";
+import { Users, VideoData } from "@/configs/schema";
+import { db } from "@/configs/db";
+import PlayerDialog from "../_components/PlayerDialog";
+import { UserDetailContext } from "@/app/_context/UserDetailContext";
+import { eq } from "drizzle-orm";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 function CreateNew() {
   const [formData, setFormData] = useState([]);
@@ -17,7 +24,13 @@ function CreateNew() {
   const [audioFileUrl, setAudioFileUrl] = useState();
   const [captions, setCaptions] = useState();
   const [imageList, setImageList] = useState();
+  const [playVideo, setPlayVideo] = useState(false);
+  const [videoId, setVideoId] = useState();
   const { videoData, setVideoData } = useContext(VideoDataContext);
+  const { user } = useUser();
+  const { userDetail, setUserDetail } = useContext(UserDetailContext);
+
+  const router = useRouter();
 
   const onHandleInputChange = (fieldName, fieldValue) => {
     setFormData((prev) => ({
@@ -27,8 +40,24 @@ function CreateNew() {
   };
 
   const onCreateClickHandler = () => {
-    GetVideoScript();
-    // GenerateAudioFile(scriptData);
+    // Check if input field are empty
+    if (!formData?.topic || !formData?.imageStyle || !formData?.duration) {
+      toast("Please fill all the fields.");
+      return;
+    }
+    if (userDetail?.credits <= 1) {
+      toast({
+        title: "Lack of Credits",
+        description:
+          "You don't have enough credits to create a video. Please buy more credits to create a video.",
+      });
+      return;
+    } else {
+      // console.log("Generating Video");
+      GetVideoScript();
+    }
+
+    // GenerateAudioFile(tempScript);
     // GenerateAudioCaption(FILEURL);
     // GenerateImage();
   };
@@ -56,8 +85,8 @@ function CreateNew() {
       }));
       setvideoScript(resp.data.result);
       await GenerateAudioFile(resp.data.result);
+      // setLoading(false);
     }
-    setLoading(false);
   };
 
   /**
@@ -80,11 +109,13 @@ function CreateNew() {
       ...prev,
       audioFileUrl: resp.data.result,
     }));
+    console.log("Audio result");
+    // console.log("Audio result", resp.data);
     setAudioFileUrl(resp.data.result); //Get FIle Url
     resp.data.result &&
       (await GenerateAudioCaption(resp.data.result, videoScriptData));
 
-    setLoading(false);
+    // setLoading(false);
   };
 
   /**
@@ -93,7 +124,8 @@ function CreateNew() {
    */
   const GenerateAudioCaption = async (fileUrl, videoScriptData) => {
     setLoading(true);
-    console.log(fileUrl);
+    console.log("CaptionfileUrl");
+    // console.log(fileUrl);
     const resp = await axios.post("/api/generate-caption", {
       audioFileUrl: fileUrl,
     });
@@ -117,7 +149,7 @@ function CreateNew() {
         const resp = await axios.post("/api/generate-image", {
           prompt: element.imagePrompt,
         });
-        console.log(resp.data.result);
+        // console.log(resp.data.result);
         images.push(resp.data.result);
       } catch (error) {
         console.log("Error:" + error);
@@ -133,7 +165,49 @@ function CreateNew() {
 
   useEffect(() => {
     console.log(videoData);
+    if (Object.keys(videoData).length == 4) {
+      SaveVideoData(videoData);
+    }
   }, [videoData]);
+
+  const SaveVideoData = async () => {
+    setLoading(true);
+
+    const result = await db
+      .insert(VideoData)
+      .values({
+        script: videoData?.videoScript,
+        audioFileUrl: videoData?.audioFileUrl,
+        captions: videoData?.captions,
+        imageList: videoData?.imageList,
+        createdBy: user?.primaryEmailAddress?.emailAddress,
+      })
+      .returning({ id: VideoData?.id });
+
+    await UpdateUserCredits();
+    setVideoId(result[0].id);
+    setPlayVideo(true);
+    // console.log(result);
+    setLoading(false);
+    router.push("/dashboard");
+  };
+
+  /**
+   * Used to update user credentials
+   */
+  const UpdateUserCredits = async () => {
+    const result = await db
+      .update(Users)
+      .set({
+        credits: userDetail?.credits - 10,
+      })
+      .where(eq(Users.email, user?.primaryEmailAddress?.emailAddress));
+
+    // console.log(result);
+    setUserDetail((prev) => ({ ...prev, credits: userDetail?.credits - 1 }));
+
+    setVideoData(null);
+  };
 
   return (
     <div className="md:px-20">
@@ -166,6 +240,7 @@ function CreateNew() {
 
         {/* Loading */}
         <CustomLoading loading={loading} />
+        <PlayerDialog playVideo={playVideo} videoId={videoId} />
       </div>
     </div>
   );

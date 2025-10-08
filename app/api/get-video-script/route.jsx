@@ -4,10 +4,12 @@ import { NextResponse } from "next/server";
 export async function POST(req) {
   try {
     const { prompt } = await req.json();
-    console.log("Received", prompt);
+    console.log("Prompt Received");
+    // console.log("Received", prompt);
 
     const result = await chatSession.sendMessage({ message: prompt });
-    console.log("Result", result.text);
+    console.log("Chat Result");
+    // console.log("Result", result.text);
 
     // console.log("Response", result.response.text());
 

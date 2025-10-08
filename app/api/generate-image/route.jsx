@@ -21,12 +21,14 @@ export async function POST(req) {
       { input }
     );
     // console.log("Output Url:", output[0].url());
-    console.log("Output:", output[0].url().href);
+    // console.log("Output:", output[0].url().href);
+    console.log("Output:");
 
     // Get the image URL from the Replicate output
     const imageURLS = output[0].url().href;
 
-    console.log("Generated Image URL:", imageURLS);
+    console.log("Generated Image URL:");
+    // console.log("Generated Image URL:", imageURLS);
 
     // Convert the image from URL to a Buffer
     const imageBuffer = await ConvertImage(imageURLS);
@@ -47,21 +49,23 @@ export async function POST(req) {
       throw error;
     }
 
-    console.log("Image uploaded successfully:", data);
+    console.log("Image uploaded successfully:");
+    // console.log("Image uploaded successfully:", data);
 
     // Get the public URL for the uploaded file
     const { data: imageUrl, error: urlError } = supabase.storage
       .from("ai-short-video-generator")
       .getPublicUrl(data.path);
     if (urlError) {
-      console.error("Error getting public URL:", urlError);
+      console.error("Error getting Image public URL:", urlError);
     }
 
     // Access the publicUrl property from the imageUrl object
     const publicUrl = imageUrl.publicUrl;
 
-    console.log("Public URL:", publicUrl);
-    return NextResponse.json({ Result: publicUrl });
+    console.log("Image Public URL:");
+    // console.log("Image Public URL:", publicUrl);
+    return NextResponse.json({ result: publicUrl });
   } catch (e) {
     console.error("An error occurred in the API route:", e);
     return NextResponse.json({ error: e.message }, { status: 500 });
