@@ -47,7 +47,7 @@ A learn more about Next.js, take a look at the following resources:
 
 - Drizzle
 
-You can check out [the Website](https://ai-short-video-generator-rawg-emmanueljr07s-projects.vercel.app) - your feedback and contributions are welcome!
+You can check out [the Website](https://ai-short-video-generator-rawg.vercel.app/) - your feedback and contributions are welcome!
 
 ## SIGN In to Test User
 The test email is [test@gmail.com]
