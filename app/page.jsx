@@ -1,5 +1,5 @@
 import { UserButton } from "@clerk/nextjs";
-import Navigation from "./landing/navigation";
+import Navigation from "./landing/Navigation";
 import Hero from "./landing/Hero";
 import Features from "./landing/Features";
 import CTA from "./landing/CTA";
