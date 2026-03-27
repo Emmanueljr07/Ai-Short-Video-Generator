@@ -13,7 +13,7 @@ export const Users = pgTable("users", {
   email: varchar("email").notNull().unique(),
   imageUrl: varchar("imageUrl").notNull(),
   subscription: boolean("subscription").default(false),
-  credits: integer("credits").default(3), // 3 Credits = 3 Videos
+  credits: integer("credits").default(2), // 2 Credits = 2 Videos
 });
 
 export const VideoData = pgTable("videoData", {

@@ -8,7 +8,7 @@ import { Buffer } from "buffer";
 export async function POST(req) {
   const { text, id } = await req.json();
 
-  const filePath = `ai-short-video-files/${id}.mp3 `;
+  const filePath = `ai-short-video-files/${id}.mp3`.trim();
 
   try {
     const elevenlabs = new ElevenLabsClient();

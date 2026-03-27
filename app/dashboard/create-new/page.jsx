@@ -44,10 +44,8 @@ function CreateNew() {
     if (!formData?.topic || !formData?.imageStyle || !formData?.duration) {
       toast("Please fill all the fields.");
       return;
-    }
-    if (userDetail?.credits <= 1) {
-      toast({
-        title: "Lack of Credits",
+    } else if (userDetail?.credits <= 1) {
+      toast("Lack of Credits", {
         description:
           "You don't have enough credits to create a video. Please buy more credits to create a video.",
       });
@@ -74,18 +72,22 @@ function CreateNew() {
       formData.imageStyle +
       ` format for each scene and give me result in JSON format with imagePrompt and ContentText as field, No Plain text`;
     // console.log(prompt);
-
-    const resp = await axios.post("/api/get-video-script", {
-      prompt: prompt,
-    });
-    if (resp.data.result) {
-      setVideoData((prev) => ({
-        ...prev,
-        videoScript: resp.data.result,
-      }));
-      setvideoScript(resp.data.result);
-      await GenerateAudioFile(resp.data.result);
-      // setLoading(false);
+    try {
+      const resp = await axios.post("/api/get-video-script", {
+        prompt: prompt,
+      });
+      if (resp.data.result) {
+        setVideoData((prev) => ({
+          ...prev,
+          videoScript: resp.data.result,
+        }));
+        setvideoScript(resp.data.result);
+        await GenerateAudioFile(resp.data.result);
+        // setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log("Error Generating Video Script" + error);
     }
   };
 
@@ -95,27 +97,32 @@ function CreateNew() {
    */
   const GenerateAudioFile = async (videoScriptData) => {
     setLoading(true);
-    let script = "";
-    const id = uuidv4();
-    videoScriptData.forEach((item) => {
-      script = script + item.ContentText + " ";
-    });
+    try {
+      let script = "";
+      const id = uuidv4();
+      videoScriptData.forEach((item) => {
+        script = script + item.ContentText + " ";
+      });
 
-    const resp = await axios.post("/api/generate-audio", {
-      text: script,
-      id: id,
-    });
-    setVideoData((prev) => ({
-      ...prev,
-      audioFileUrl: resp.data.result,
-    }));
-    console.log("Audio result");
-    // console.log("Audio result", resp.data);
-    setAudioFileUrl(resp.data.result); //Get FIle Url
-    resp.data.result &&
-      (await GenerateAudioCaption(resp.data.result, videoScriptData));
+      const resp = await axios.post("/api/generate-audio", {
+        text: script,
+        id: id,
+      });
+      setVideoData((prev) => ({
+        ...prev,
+        audioFileUrl: resp.data.result,
+      }));
+      console.log("Audio result");
+      // console.log("Audio result", resp.data);
+      setAudioFileUrl(resp.data.result); //Get FIle Url
+      resp.data.result &&
+        (await GenerateAudioCaption(resp.data.result, videoScriptData));
 
-    // setLoading(false);
+      // setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.log("Error Generating Audio File" + error);
+    }
   };
 
   /**
@@ -124,48 +131,64 @@ function CreateNew() {
    */
   const GenerateAudioCaption = async (fileUrl, videoScriptData) => {
     setLoading(true);
-    console.log("CaptionfileUrl");
-    // console.log(fileUrl);
-    const resp = await axios.post("/api/generate-caption", {
-      audioFileUrl: fileUrl,
-    });
+    try {
+      console.log("CaptionfileUrl");
+      // console.log(fileUrl);
+      const resp = await axios.post("/api/generate-caption", {
+        audioFileUrl: fileUrl,
+      });
 
-    setCaptions(resp?.data?.result);
-    setVideoData((prev) => ({
-      ...prev,
-      captions: resp.data.result,
-    }));
-    resp.data.result && (await GenerateImage(videoScriptData));
+      setCaptions(resp?.data?.result);
+      setVideoData((prev) => ({
+        ...prev,
+        captions: resp.data.result,
+      }));
+      resp.data.result && (await GenerateImage(videoScriptData));
+    } catch (error) {
+      setLoading(false);
+      console.log("Error Generating Audio Caption" + error);
+    }
   };
 
   /**
    * Used to generate AI Images
    */
   const GenerateImage = async (videoScriptData) => {
-    let images = [];
+    try {
+      let images = [];
 
-    for (const element of videoScriptData) {
-      try {
-        const resp = await axios.post("/api/generate-image", {
-          prompt: element.imagePrompt,
-        });
-        // console.log(resp.data.result);
-        images.push(resp.data.result);
-      } catch (error) {
-        console.log("Error:" + error);
+      for (const element of videoScriptData) {
+        try {
+          const resp = await axios.post("/api/generate-image", {
+            prompt: element.imagePrompt,
+          });
+          // console.log(resp.data.result);
+          images.push(resp.data.result);
+        } catch (error) {
+          console.log("Error:" + error);
+        }
       }
+      setVideoData((prev) => ({
+        ...prev,
+        imageList: images,
+      }));
+      setImageList(images);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.log("Error Generating Image" + error);
     }
-    setVideoData((prev) => ({
-      ...prev,
-      imageList: images,
-    }));
-    setImageList(images);
-    setLoading(false);
   };
 
   useEffect(() => {
-    console.log(videoData);
-    if (Object.keys(videoData).length == 4) {
+    // console.log(videoData);
+    // if (Object.keys(videoData).length == 4) {
+    //   SaveVideoData(videoData);
+    // }
+    if (!videoData) return;
+    const { videoScript, audioFileUrl, captions, imageList } = videoData;
+
+    if (videoScript && audioFileUrl && captions && imageList) {
       SaveVideoData(videoData);
     }
   }, [videoData]);
@@ -199,7 +222,7 @@ function CreateNew() {
     const result = await db
       .update(Users)
       .set({
-        credits: userDetail?.credits - 10,
+        credits: userDetail?.credits - 1,
       })
       .where(eq(Users.email, user?.primaryEmailAddress?.emailAddress));
 
