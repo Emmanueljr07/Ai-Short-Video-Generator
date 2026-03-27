@@ -35,7 +35,7 @@ const CTA = () => {
                 variant="hero"
                 size="lg"
                 className="text-lg px-8 py-4"
-                onClick={() => (window.location.href = "/sign-up")}
+                onClick={() => (window.location.href = "/sign-in")}
               >
                 Start Free Trial
                 <ArrowRight className="h-5 w-5" />

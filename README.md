@@ -47,9 +47,10 @@ A learn more about Next.js, take a look at the following resources:
 
 - Drizzle
 
-You can check out [the Website](https://ai-short-video-generator-imlaqwkbz-emmanueljr07s-projects.vercel.app) - your feedback and contributions are welcome!
+You can check out [the Website](https://ai-short-video-generator-rawg-emmanueljr07s-projects.vercel.app) - your feedback and contributions are welcome!
 
-## Test User
-The test email is test12@gmail.com 
+## SIGN In to Test User
+The test email is [test@gmail.com]
+password = [1-8]
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

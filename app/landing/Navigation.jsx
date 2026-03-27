@@ -9,10 +9,16 @@ const Navigation = () => {
   const { user } = useUser();
 
   useEffect(() => {
-    if (user) {
+    if (user && user?.primaryEmailAddress?.emailAddress == "test@gmail.com") {
+      window.location.href = "/dashboard";
+    } else if (
+      user &&
+      user?.primaryEmailAddress?.emailAddress ==
+        process.env.NEXT_PUBLIC_EMAIL_ADDRESS
+    ) {
       window.location.href = "/dashboard";
     } else {
-      window.location.href = "/sign-up";
+      // window.location.href = "/sign-up";
     }
   }, [user]);
   return (
